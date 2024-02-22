@@ -1,6 +1,8 @@
 #include "Player.hpp"
 #include <string>
 #include <vector>
+#include <cassert>
+#include <algorithm>
 using namespace std;
 
 std::ostream & operator<<(std::ostream &os, const Player &p) {
@@ -125,34 +127,86 @@ string name;
 vector<Card> hand;  
 };
 
-/*class Human : public Player{
+
+
+class Human : public Player{
     public:
+
+    Human(string nameIn) : name(nameIn) {}
+
     const std::string & get_name() const override{
         return name;
     }
+    
     void add_card(const Card &c){
         hand.push_back(c);
     }
+    
     bool make_trump(const Card &upcard, bool is_dealer,
-                          int round, Suit &order_up_suit){
-        cout << "Human player " << name << ", order a trump suit or pass";
-        string decision;
-        cin >> decision;
-        if(decision == "Spades" || decision == "Hearts"
-         || decision == "Clubs" || decision == "Diamonds") {
-            order_up_suit = string_to_suit(decision);
-            return true;
+                          int round, Suit &order_up_suit) const {
+            print_hand();
+            if(round == 2 && is_dealer) {
+                cout << "Human player " << name << ", please enter a suit:\n";
+                string decision;
+                cin >> decision;
+                order_up_suit = string_to_suit(decision);
+                return true;
+            }
+            cout << "Human player " << name << ", please enter a suit, or \"pass\":\n";
+            string decision;
+            cin >> decision;
+            if(decision != "pass") {
+                order_up_suit = string_to_suit(decision);
+                return true;
+            } else {
+                return false;
+            }
+    }
+
+    void add_and_discard(const Card &upcard) {
+        sort(hand.begin(), hand.end());
+        print_hand();
+        cout << "Discard upcard: [-1]\n";
+        cout << "Human player " << name << ", please select a card to discard:\n";
+        int discard;
+        cin >> discard;
+        if(discard == -1) {
+            return;
         } else {
-            return false;
+            hand[discard] = upcard;
         }
+    }
+
+    Card lead_card(Suit trump) {
+        print_hand();
+        cout << "Human player " << name << ", please select a card:\n";
+        int selected;
+        cin >> selected;
+        Card temp = hand[selected];
+        hand.erase(hand.begin() + selected);
+        return temp;
+    }
+
+    Card play_card(const Card &led_card, Suit trump) {
+        print_hand();
+        cout << "Human player " << name << ", please select a card:\n";
+        int selected;
+        cin >> selected;
+        Card temp = hand[selected];
+        hand.erase(hand.begin() + selected);
+        return temp;
     }
     
     
     private:
     std::string name;
     vector<Card> hand;
+    void print_hand() const {
+  for (size_t i=0; i < hand.size(); ++i)
+    cout << "Human player " << name << "'s hand: "
+         << "[" << i << "] " << hand[i] << "\n";
+}
 };
-*/
 
 Player * Player_factory(const std::string &name, const std::string &strategy) {
   // We need to check the value of strategy and return 
@@ -162,9 +216,9 @@ Player * Player_factory(const std::string &name, const std::string &strategy) {
     return new Simple(name);
   }
   // Repeat for each other type of Player
-    /*if (strategy == "Human"){
+    if (strategy == "Human"){
         return new Human(name);
-    }*/
+    }
   // Invalid strategy if we get here
   assert(false);
   return nullptr;
