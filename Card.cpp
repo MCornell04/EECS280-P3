@@ -130,17 +130,15 @@ bool Card::is_face_or_ace() const{
   return false;
 }
 bool Card::is_right_bower(Suit trump) const{
-  if(is_trump(trump) && rank == 9){
+  if(get_suit() == trump && rank == 9){
     return true;
   }
   return false;
 }
 bool Card::is_left_bower(Suit trump) const{
-  if(trump % 2 == 0 && suit % 2 == 0 && !is_trump(trump) && rank == 9) {
+  if( Suit_next(suit) == trump && rank == JACK) {
     return true;
-  } else if(trump % 2 == 1 && suit % 2 == 1 && !is_trump(trump) && rank == 9){
-    return true;
-  } else{
+  }else{
     return false;
   }
 }
@@ -260,11 +258,33 @@ bool Card_less(const Card &a, const Card &b, const Card &led_card, Suit trump) {
  if(b.is_right_bower(trump)){
     return true;
   }
+   else if(a.is_right_bower(trump)){
+    return false;
+  }
  else if(a.is_left_bower(trump)) {
     if(b.is_right_bower(trump)) {
       return true;
     } else {
       return false;
+    }
+  } else if(b.is_left_bower(trump)){
+    return true;
+  }
+ else if(a.get_suit() != trump && b.get_suit() == trump) {
+    return true;
+  } 
+  else if(a.get_suit() == trump && b.get_suit() != trump){
+    return false;
+  } else if(a.get_suit() != led_card.get_suit() && b.get_suit() == led_card.get_suit()) {
+    return true;
+  } else if(a.get_suit() == led_card.get_suit() && b.get_suit() != led_card.get_suit()){
+    return false;
+  } else if(a.get_rank() < b.get_rank()) {
+    return true;
+  } else {
+    return false;
+  }
+}
     }
   } else if(b.is_left_bower(trump)){
     return true;
