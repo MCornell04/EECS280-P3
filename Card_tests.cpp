@@ -37,7 +37,6 @@ TEST(card_less_lessTrump_test){
    ASSERT_TRUE(Card_less(ace,trumpNine,trump));
    ASSERT_TRUE(Card_less(kingNonTrump,queen,trump));
    ASSERT_TRUE(Card_less(heartTen,diamondTen,trump));
-   //Above is wrong I believe, should be false
    ASSERT_FALSE(Card_less(queen, kingNonTrump,trump));
    ASSERT_FALSE(Card_less(trumpNine,kingNonTrump,trump));
    ASSERT_FALSE(Card_less(aceSpades,aceSpadesDupe,trump));
@@ -48,6 +47,7 @@ TEST(card_less_lessTrump_test){
    ASSERT_FALSE(Card_less(rightBower,leftBower,aceSpades,trump));
    ASSERT_FALSE(Card_less(rightBower,jackNonTrump,kingNonTrump,trump));
    ASSERT_TRUE(Card_less(heartNine,aceSpades,trumpNine,trump));
+   ASSERT_TRUE(Card_less(heartTen,diamondTen,aceSpades,trump));
 
 }
 TEST(mass_test_simple){
@@ -61,7 +61,7 @@ TEST(mass_test_simple){
    Suit trump = rightBower.get_suit();
    Card one(TEN,HEARTS);
    Card defaultCon; 
-
+   Card weird(EIGHT,CLUBS);
 
 
 
@@ -70,6 +70,7 @@ TEST(mass_test_simple){
    ASSERT_EQUAL(ace.get_rank(),ACE);
    ASSERT_EQUAL(ace.get_suit(),CLUBS);
    ASSERT_EQUAL(leftBower.get_suit(trump), trump);
+   ASSERT_TRUE(ace.is_face_or_ace());
    ASSERT_TRUE(kingNonTrump.is_face_or_ace());
    ASSERT_FALSE(heartNine.is_face_or_ace());
    ASSERT_FALSE(one.is_face_or_ace()) ;
@@ -77,6 +78,8 @@ TEST(mass_test_simple){
    ASSERT_TRUE(leftBower.is_face_or_ace());
    ASSERT_FALSE(heartNine.is_face_or_ace());
    ASSERT_TRUE(kingNonTrump.is_face_or_ace());
+   ASSERT_FALSE(weird.is_face_or_ace());
+   ASSERT_TRUE(queen.is_face_or_ace());
    ASSERT_TRUE(rightBower.is_right_bower(trump));
    ASSERT_FALSE(ace.is_left_bower(trump));
    ASSERT_TRUE(leftBower.is_left_bower(trump));
