@@ -285,22 +285,3 @@ bool Card_less(const Card &a, const Card &b, const Card &led_card, Suit trump) {
     return false;
   }
 }
-    }
-  } else if(b.is_left_bower(trump)){
-    return true;
-  }
- else if(a.get_suit() != trump && b.get_suit() == trump) {
-    return true;
-  } 
-  else if(a.get_suit() == trump && b.get_suit() != trump){
-    return false;
-  } else if(a.get_suit() != led_card.get_suit() && b.get_suit() == led_card.get_suit()) {
-    return true;
-  } else if(a.get_suit() == led_card.get_suit() && b.get_suit() != led_card.get_suit()){
-    return false;
-  } else if(a.get_rank() < b.get_rank()) {
-    return true;
-  } else {
-    return false;
-  }
-}
