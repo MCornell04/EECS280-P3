@@ -58,12 +58,24 @@ TEST(mass_test_simple){
    Card kingNonTrump(KING,HEARTS);
    Card queen(QUEEN,SPADES);
    Suit trump = rightBower.get_suit();
+   Card one(TEN,HEARTS);
+   Card defaultCon; 
+
+
+
+
+
 
    ASSERT_EQUAL(ace.get_rank(),ACE);
    ASSERT_EQUAL(ace.get_suit(),CLUBS);
    ASSERT_EQUAL(leftBower.get_suit(trump), trump);
    ASSERT_TRUE(kingNonTrump.is_face_or_ace());
    ASSERT_FALSE(heartNine.is_face_or_ace());
+   ASSERT_FALSE(one.is_face_or_ace()) ;
+   ASSERT_FALSE(defaultCon.is_face_or_ace());
+   ASSERT_TRUE(leftBower.is_face_or_ace());
+   ASSERT_FALSE(heartNine.is_face_or_ace());
+   ASSERT_TRUE(kingNonTrump.is_face_or_ace());
    ASSERT_TRUE(rightBower.is_right_bower(trump));
    ASSERT_FALSE(ace.is_left_bower(trump));
    ASSERT_TRUE(leftBower.is_left_bower(trump));
@@ -142,4 +154,3 @@ TEST(input_output_tests){
 }
 
 TEST_MAIN()
-
