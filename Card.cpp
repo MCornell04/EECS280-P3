@@ -124,7 +124,7 @@ Suit Card::get_suit(Suit trump) const{
   }
 }
 bool Card::is_face_or_ace() const{
-  if(rank > 8) {
+  if(rank >= JACK) {
     return true;
   }
   return false;
@@ -249,6 +249,12 @@ bool Card_less(const Card &a, const Card &b, Suit trump) {
   }
   else if(a.get_rank() < b.get_rank()) {
     return true;
+  } else if (a.get_rank() == b.get_rank()){
+    if(a.get_suit() < b.get_suit()) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
@@ -281,6 +287,12 @@ bool Card_less(const Card &a, const Card &b, const Card &led_card, Suit trump) {
     return false;
   } else if(a.get_rank() < b.get_rank()) {
     return true;
+  } else if (a.get_rank() == b.get_rank()){
+    if(a.get_suit() < b.get_suit()) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
