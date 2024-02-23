@@ -256,8 +256,10 @@ TEST(add_and_discard){
   ASSERT_EQUAL(played, Card(JACK,HEARTS));
   ASSERT_EQUAL(playedTwo, Card(ACE,HEARTS));
   ASSERT_EQUAL(playedThree, Card(QUEEN,HEARTS));
-  ASSERT_EQUAL(playedFour, Card(KING,SPADES));
-  ASSERT_EQUAL(playedFive, Card(TEN,SPADES));
+  ASSERT_EQUAL(playedFour, Card(TEN,SPADES));
+  ASSERT_EQUAL(playedFive, Card(KING,SPADES));
+
+  delete bob;
 
   
   Player * jim = Player_factory("jim", "Simple");
@@ -268,11 +270,41 @@ TEST(add_and_discard){
   jim->add_card(Card(ACE, SPADES));
   jim->add_and_discard(Card(JACK,SPADES));
   
-  played = bob->play_card(Card(KING,HEARTS), HEARTS);
-  playedTwo = bob->play_card(Card(KING,HEARTS), HEARTS);
-  playedThree = bob->play_card(Card(KING,HEARTS), HEARTS);
-  playedFour = bob->play_card(Card(KING,HEARTS), HEARTS);
-  playedFive = bob->play_card(Card(KING,HEARTS), HEARTS);
+  played = jim->play_card(Card(KING,HEARTS), HEARTS);
+  playedTwo = jim->play_card(Card(KING,HEARTS), HEARTS);
+  playedThree = jim->play_card(Card(KING,HEARTS), HEARTS);
+  playedFour = jim->play_card(Card(KING,HEARTS), HEARTS);
+  playedFive = jim->play_card(Card(KING,HEARTS), HEARTS);
+
+  ASSERT_EQUAL(played, Card(TEN,SPADES));
+  ASSERT_EQUAL(playedTwo, Card(JACK,SPADES));
+  ASSERT_EQUAL(playedThree, Card(QUEEN,SPADES));
+  ASSERT_EQUAL(playedFour, Card(KING,SPADES));
+  ASSERT_EQUAL(playedFive, Card(ACE,SPADES));
+
+  delete jim;
+  
+  Player * kim = Player_factory("jim", "Simple");
+  kim->add_card(Card(JACK, SPADES));
+  kim->add_card(Card(TEN, SPADES));
+  kim->add_card(Card(QUEEN, SPADES));
+  kim->add_card(Card(KING, SPADES));
+  kim->add_card(Card(ACE, SPADES));
+  kim->add_and_discard(Card(NINE,SPADES));
+  
+  played = kim->play_card(Card(KING,HEARTS), SPADES);
+  playedTwo = kim->play_card(Card(KING,HEARTS), SPADES);
+  playedThree = kim->play_card(Card(KING,HEARTS), SPADES);
+  playedFour = kim->play_card(Card(KING,HEARTS), SPADES);
+  playedFive = kim->play_card(Card(KING,HEARTS), SPADES);
+
+  ASSERT_EQUAL(played, Card(TEN,SPADES));
+  ASSERT_EQUAL(playedTwo, Card(QUEEN,SPADES));
+  ASSERT_EQUAL(playedThree, Card(KING,SPADES));
+  ASSERT_EQUAL(playedFour, Card(ACE,SPADES));
+  ASSERT_EQUAL(playedFive, Card(JACK,SPADES));
+
+  delete kim;
 
 }
 
