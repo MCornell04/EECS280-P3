@@ -131,7 +131,7 @@ class Simple : public Player{
         }
         if(!canFollow) {
             for(int i = 0; i < hand.size(); i++) {
-                if(hand[i].get_rank() < play.get_rank()) {
+                if(Card_less(hand[i], play, trump)) {
                     play = hand[i];
                     playIndex = i;
                 }
