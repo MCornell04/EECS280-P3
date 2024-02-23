@@ -27,10 +27,10 @@ class Simple : public Player{
                           int round, Suit &order_up_suit) const {
         int count = 0;
         if(round == 1) {
-            for(int i = 0; i < MAX_HAND_SIZE; i++) {
-                if(hand[i].get_suit() == upcard.get_suit() && hand[i].is_face_or_ace()){
+            for(int i = 0; i < hand.size(); i++) {
+                if(hand[i].get_suit(upcard.get_suit()) == upcard.get_suit() && hand[i].is_face_or_ace()){
                     count++;
-                }
+                } 
             }
             if(count > 1) {
                 order_up_suit = upcard.get_suit();
@@ -41,9 +41,12 @@ class Simple : public Player{
         } else {
             if(is_dealer) {
                 order_up_suit = Suit_next(upcard.get_suit());
+                return true;
             }
-            for(int i = 0; i < MAX_HAND_SIZE; i++) {
-                if(Suit_next(hand[i].get_suit()) == upcard.get_suit() && hand[i].is_face_or_ace()){
+            for(int i = 0; i < hand.size(); i++) {
+                if((Suit_next(hand[i].get_suit(upcard.get_suit())) == upcard.get_suit()) && hand[i].is_face_or_ace()){
+                    count++;
+                } else if(hand[i].is_left_bower(upcard.get_suit())) {
                     count++;
                 }
             }
@@ -107,6 +110,22 @@ class Simple : public Player{
                 if(hand[i].get_rank() > play.get_rank() || play.get_suit() == trump) {
                     play = hand[i];
                     playIndex = i;
+                }
+            }
+            if(canFollow) {
+                bool rb = false;
+                for (int i = 0; i < hand.size(); i++) {
+                    if(hand[i].is_right_bower(trump)) {
+                        rb = true;
+                        play = hand[i];
+                        playIndex = i;
+                    }
+                    if(!rb) {
+                        if(hand[i].is_left_bower(trump)) {
+                        play = hand[i];
+                        playIndex = i;
+                    }
+                    }
                 }
             }
         }
