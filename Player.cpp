@@ -6,7 +6,8 @@
 using namespace std;
 
 std::ostream & operator<<(std::ostream &os, const Player &p) {
-  assert(false);
+  os << p.get_name();
+  return os;
 }
 
 class Simple : public Player{
@@ -138,12 +139,12 @@ class Human : public Player{
         return name;
     }
     
-    void add_card(const Card &c){
+    void add_card(const Card &c) override {
         hand.push_back(c);
     }
     
     bool make_trump(const Card &upcard, bool is_dealer,
-                          int round, Suit &order_up_suit) const {
+                          int round, Suit &order_up_suit) const override {
             print_hand();
             if(round == 2 && is_dealer) {
                 cout << "Human player " << name << ", please enter a suit:\n";
@@ -163,7 +164,7 @@ class Human : public Player{
             }
     }
 
-    void add_and_discard(const Card &upcard) {
+    void add_and_discard(const Card &upcard) override {
         sort(hand.begin(), hand.end());
         print_hand();
         cout << "Discard upcard: [-1]\n";
@@ -177,7 +178,7 @@ class Human : public Player{
         }
     }
 
-    Card lead_card(Suit trump) {
+    Card lead_card(Suit trump) override {
         print_hand();
         cout << "Human player " << name << ", please select a card:\n";
         int selected;
@@ -187,7 +188,7 @@ class Human : public Player{
         return temp;
     }
 
-    Card play_card(const Card &led_card, Suit trump) {
+    Card play_card(const Card &led_card, Suit trump) override {
         print_hand();
         cout << "Human player " << name << ", please select a card:\n";
         int selected;
