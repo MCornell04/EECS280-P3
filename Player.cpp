@@ -107,24 +107,28 @@ class Simple : public Player{
         for(int i = 0; i < hand.size(); i++) {
             if(hand[i].get_suit(trump) == led_card.get_suit(trump)){
                 canFollow = true;
-                if(hand[i].get_rank() > play.get_rank() || play.get_suit() == trump) {
+                play = hand[i];
+                playIndex = i;
+            }
+            if(canFollow) {
+                if(hand[i].get_rank() > play.get_rank() && hand[i].get_suit() == led_card.get_suit()) {
                     play = hand[i];
                     playIndex = i;
                 }
-            }
-            if(canFollow) {
-                bool rb = false;
-                for (int i = 0; i < hand.size(); i++) {
-                    if(hand[i].is_right_bower(trump)) {
-                        rb = true;
-                        play = hand[i];
-                        playIndex = i;
-                    }
-                    if(!rb) {
-                        if(hand[i].is_left_bower(trump)) {
-                        play = hand[i];
-                        playIndex = i;
-                    }
+                if(led_card.get_suit() == trump){
+                    bool rb = false;
+                    for (int i = 0; i < hand.size(); i++) {
+                        if(hand[i].is_right_bower(trump)) {
+                            rb = true;
+                            play = hand[i];
+                            playIndex = i;
+                        }
+                        if(!rb) {
+                            if(hand[i].is_left_bower(trump)) {
+                            play = hand[i];
+                            playIndex = i;
+                            }
+                        }
                     }
                 }
             }
@@ -144,7 +148,7 @@ class Simple : public Player{
 
 private:
 string name;
-vector<Card> hand;  
+vector<Card> hand;
 };
 
 
