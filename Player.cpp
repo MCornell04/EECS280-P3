@@ -79,6 +79,7 @@ class Simple : public Player{
         for(int i = 0; i < hand.size(); i++) {
             if(hand[i].get_suit(trump) != trump) {
                 alltrump = false;
+                lead = hand[i];
             }
         }
         if(alltrump) {
