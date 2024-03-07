@@ -79,7 +79,9 @@ class Simple : public Player{
         for(int i = 0; i < hand.size(); i++) {
             if(hand[i].get_suit(trump) != trump) {
                 alltrump = false;
+            } else {
                 lead = hand[i];
+                leadIndex = i;
             }
         }
         if(alltrump) {
@@ -89,9 +91,29 @@ class Simple : public Player{
                     leadIndex = i;
                 }
             }
+            bool rb = false;
+                    for (int i = 0; i < hand.size(); i++) {
+                        if(hand[i].is_right_bower(trump)) {
+                            rb = true;
+                            lead = hand[i];
+                            leadIndex = i;
+                        }
+                        if(!rb) {
+                            if(hand[i].is_left_bower(trump)) {
+                            lead = hand[i];
+                            leadIndex = i;
+                            }
+                        }
+                    }
         } else {
             for(int i = 0; i < hand.size(); i++) {
-                if(hand[i].get_suit(trump) != trump && hand[i].get_rank() > lead.get_rank()) {
+                if(hand[i].get_suit() != trump) {
+                    lead = hand[i];
+                    leadIndex = i;
+                }
+            }
+            for(int i = 0; i < hand.size(); i++) {
+                if(hand[i].get_suit(trump) != trump && hand[i] > lead) {
                 lead = hand[i];
                 leadIndex = i;
                 }
@@ -111,6 +133,8 @@ class Simple : public Player{
                 play = hand[i];
                 playIndex = i;
             }
+        }
+        for(int i = 0; i < hand.size(); i++){
             if(canFollow) {
                 if(hand[i].get_rank() > play.get_rank() && hand[i].get_suit() == led_card.get_suit()) {
                     play = hand[i];
@@ -136,7 +160,13 @@ class Simple : public Player{
         }
         if(!canFollow) {
             for(int i = 0; i < hand.size(); i++) {
-                if(Card_less(hand[i], play, trump)) {
+            if(hand[i].get_suit(trump) != led_card.get_suit(trump) && hand[i].get_suit(trump) != trump){
+                play = hand[i];
+                playIndex = i;
+            }
+        }
+            for(int i = 0; i < hand.size(); i++) {
+                if(Card_less(hand[i], play, led_card, trump)) {
                     play = hand[i];
                     playIndex = i;
                 }
@@ -146,6 +176,7 @@ class Simple : public Player{
         hand.erase(hand.begin() + playIndex);
         return temp;
     }
+
 
 private:
 string name;
