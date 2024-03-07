@@ -10,15 +10,31 @@
 
 using namespace std;
 
+
+
 class Game {
+   private:
+  std::vector<Player*> players;
+  Pack pack;
+  int pointsNeeded;
+  Suit trump;
+  bool maybeShuffle;
+  std::vector<Player*> original;
+  int points1 = 0;
+  int points2 = 0;
+
  public:
   Game(Player* p0, Player* p1, Player* p2, Player* p3, int points, ifstream& ifs, bool isShuffle){
     players.push_back(p0);
     players.push_back(p1);
     players.push_back(p2);
     players.push_back(p3);
+    original = players;
     pointsNeeded = points;
+    points1 = 0;
+    points2 = 0;
     pack = Pack(ifs);
+    maybeShuffle = isShuffle;
     if(isShuffle){
       pack.shuffle();
     }
@@ -26,8 +42,6 @@ class Game {
   
   
   bool play(int points){
-  int points1 = 0;
-  int points2 = 0;
   int orderIndex;
   int totalHands = 0;
   bool evenRound = true;
@@ -38,11 +52,15 @@ class Game {
   while(points1 < points && points2 < points) {
     cout << "Hand " << totalHands << endl;
     if(totalHands > 0){
-        players[0] = copy[3];
-        players[1] = copy[0];
-        players[2] = copy[1];
-        players[3] = copy[2];
+        players[0] = copy[1];
+        players[1] = copy[2];
+        players[2] = copy[3];
+        players[3] = copy[0];
       copy = players;
+      pack.reset();
+      if(maybeShuffle){
+        pack.shuffle();
+      }
     }
     cout << players[0]->get_name() << " deals" << endl;
     threeDeal(players[1]);
@@ -54,7 +72,7 @@ class Game {
     twoDeal(players[3]);
     threeDeal(players[0]);
     orderIndex = set_trump();
-    play_hand(trump, orderIndex, points1, points2, evenRound);
+    play_hand(trump, orderIndex, evenRound);
     if(evenRound) {
       evenRound = false;
     } else {
@@ -62,7 +80,7 @@ class Game {
     }
     totalHands++;
     cout << original[0]->get_name() << " and " << original[2]->get_name() << " have " << points1 << " points" << endl;
-    cout << original[1]->get_name() << " and " << original[3]->get_name() << " have " << points1 << " points" << endl; 
+    cout << original[1]->get_name() << " and " << original[3]->get_name() << " have " << points2 << " points" << endl << endl; 
   }
   if(points1 > points2) {
     return true;
@@ -116,81 +134,82 @@ int set_trump(){
   }
   trump = trumpSuit;
   cout << players[placement]->get_name() << " orders up " << trump << endl << endl;
-  return placement-1;
+  return placement;
 }
 
-void play_trick(Suit trump, int& p1, int& lead){
+void play_trick(Suit trump, int& p1, int& lead, int orderIndex){
   Card leadCard = players[lead]->lead_card(trump);
-  cout << leadCard.get_rank() << " of " << leadCard.get_suit() << " led by " << players[lead]->get_name() << endl;
+  cout << leadCard << " led by " << players[lead]->get_name() << endl;
   vector<Card> cards;
   cards.push_back(leadCard);
   for(int i = 1; i < 4; i++) {
     cards.push_back(players[(lead + i) % 4]->play_card(leadCard, trump));
-    cout << cards[i].get_rank() << " of " << cards[i].get_suit() << " played by " << players[(lead + i) % 4]->get_name() << endl;
+    cout << cards[i] << " played by " << players[(lead + i) % 4]->get_name() << endl;
   }
   Card high = leadCard;
+  int leadIndex = 0;
   for(int i = 1; i < 4; i++) {
     if(Card_less(high, cards[i], leadCard, trump)) {
       high = cards[i];
-      lead = 3;
+      leadIndex = i;
     }
   }
-  cout << high;
+  lead = (lead + leadIndex) % 4;
   cout << players[lead]->get_name() << " takes the trick" << endl << endl;
-  if(high != leadCard && high != cards[1]) {
+  //Who ordered!!!!!
+  if(players[lead] == players[orderIndex] || players[(lead + 2) % 4] == players[orderIndex]) {
     p1++;
   }
 }
 
-void play_hand(Suit trump, int orderIndex, int &points1, int &points2, bool evenRound) {
+void play_hand(Suit trump, int orderIndex, bool evenRound) {
   int handsWon = 0;
   int lead = 1;
   for(int i = 0; i < 5; i++) {
-      play_trick(trump, handsWon, lead);
-    }
-    if(evenRound){
-      awardPoint(orderIndex, handsWon, points1, points2);
-    }else{
-      awardPoint(orderIndex + 1, handsWon, points1, points2);
-    }
+      play_trick(trump, handsWon, lead, orderIndex);
+  }
+  awardPoint(orderIndex, handsWon);
 }
-void awardPoint(int a, int b, int& c, int& d) {
-  if(a == 0 || a == 2) {
-      if(b < 3) {
-        d += 2;
-        cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
-        cout << "euchred!" << endl;
-      } else if(b == 5) {
-        c += 2;
-        cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
-        cout << "march!" << endl;
-      } else {
-        c++;
-        cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
-      }
+void awardPoint(int orderIndex, int handsWon) {
+  int indexTracker = -1;
+  for(int i = 0; i < 4; i++){
+    if(players[orderIndex]->get_name() == original[i]->get_name()){
+      indexTracker = i;
+    }
+  }
+  if(indexTracker > 2) {
+    indexTracker -= 2;
+  }
+  if(indexTracker == 0) {
+    if(handsWon < 3) {
+      cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
+      cout << "euchred!" << endl;
+      points2 += 2;
+    } else if(handsWon == 5) {
+      cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
+      cout << "march!" << endl;
+      points1 += 2;
     } else {
-      if(b < 3) {
-        c += 2;
-        cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
-        cout << "euchred!" << endl;
-      } else if(b == 5) {
-        d += 2;
-        cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
-        cout << "march!" << endl;
-      } else {
-        d++;
-        cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
-      }
+      cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
+      points1 += 1;
     }
+  } else {
+    if(handsWon < 3) {
+      cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
+      cout << "euchred!" << endl;
+      points1 += 2;
+    } else if(handsWon == 5) {
+      cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
+      cout << "march!" << endl;
+      points2 += 2;
+    } else {
+      cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
+      points2 += 1;
+    }
+  }
 }
 
 
- private:
-  std::vector<Player*> players;
-  Pack pack;
-  int pointsNeeded;
-  Suit trump;
-  std::vector<Player*> original = players;
 };
 
 int main(int argc, char **argv) {
@@ -248,9 +267,9 @@ int main(int argc, char **argv) {
   Game game(p0,p1,p2,p3,points,fin, shuffle);
   bool outcome = game.play(points);
   if (outcome){
-    cout << p0->get_name() << " and " << p2->get_name() << " win!" << endl;
+    cout << endl << p0->get_name() << " and " << p2->get_name() << " win!" << endl;
   }else{
-    cout << p1->get_name() << " and " << p3->get_name() << " win!" << endl;
+    cout << endl << p1->get_name() << " and " << p3->get_name() << " win!" << endl;
   }
 }
 
