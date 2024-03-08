@@ -28,7 +28,8 @@ class Simple : public Player{
         int count = 0;
         if(round == 1) {
             for(int i = 0; i < hand.size(); i++) {
-                if(hand[i].get_suit(upcard.get_suit()) == upcard.get_suit() && hand[i].is_face_or_ace()){
+                if(hand[i].get_suit(upcard.get_suit()) == 
+                upcard.get_suit() && hand[i].is_face_or_ace()){
                     count++;
                 } 
             }
@@ -44,7 +45,8 @@ class Simple : public Player{
                 return true;
             }
             for(int i = 0; i < hand.size(); i++) {
-                if((Suit_next(hand[i].get_suit(upcard.get_suit())) == upcard.get_suit()) && hand[i].is_face_or_ace()){
+                if((Suit_next(hand[i].get_suit(upcard.get_suit())) ==
+                 upcard.get_suit()) && hand[i].is_face_or_ace()){
                     count++;
                 } else if(hand[i].is_left_bower(upcard.get_suit())) {
                     count++;
@@ -79,18 +81,17 @@ class Simple : public Player{
         for(int i = 0; i < hand.size(); i++) {
             if(hand[i].get_suit(trump) != trump) {
                 alltrump = false;
-            } else {
-                lead = hand[i];
-                leadIndex = i;
-            }
+                break;
+            } 
         }
         if(alltrump) {
+           
             for(int i = 1; i < hand.size(); i++) {
-                if(hand[i].get_rank() > lead.get_rank()) {
+                if(Card_less(lead, hand[i], trump)) {
                     lead = hand[i];
                     leadIndex = i;
                 }
-            }
+            }/*
             bool rb = false;
                     for (int i = 0; i < hand.size(); i++) {
                         if(hand[i].is_right_bower(trump)) {
@@ -104,16 +105,17 @@ class Simple : public Player{
                             leadIndex = i;
                             }
                         }
-                    }
-        } else {
+                    }*/
+        }
+        else {
             for(int i = 0; i < hand.size(); i++) {
-                if(hand[i].get_suit() != trump) {
+                if(hand[i].get_suit(trump) != trump) {
                     lead = hand[i];
                     leadIndex = i;
                 }
             }
             for(int i = 0; i < hand.size(); i++) {
-                if(hand[i].get_suit(trump) != trump && hand[i] > lead) {
+                if(hand[i].get_suit(trump) != trump && Card_less(lead, hand[i], trump)) {
                 lead = hand[i];
                 leadIndex = i;
                 }
@@ -132,15 +134,17 @@ class Simple : public Player{
                 canFollow = true;
                 play = hand[i];
                 playIndex = i;
+                break;
             }
         }
-        for(int i = 0; i < hand.size(); i++){
-            if(canFollow) {
-                if(hand[i].get_rank() > play.get_rank() && hand[i].get_suit() == led_card.get_suit()) {
+        if (canFollow){
+            for(int i = playIndex; i < hand.size(); i++){
+                if(Card_less(play, hand[i], led_card, trump) && 
+                hand[i].get_suit(trump) == led_card.get_suit(trump)) {
                     play = hand[i];
                     playIndex = i;
-                }
-                if(led_card.get_suit() == trump){
+                }/*
+                if(led_card.get_suit(trump) == trump){
                     bool rb = false;
                     for (int i = 0; i < hand.size(); i++) {
                         if(hand[i].is_right_bower(trump)) {
@@ -156,11 +160,13 @@ class Simple : public Player{
                         }
                     }
                 }
+                */
             }
         }
         if(!canFollow) {
             for(int i = 0; i < hand.size(); i++) {
-            if(hand[i].get_suit(trump) != led_card.get_suit(trump) && hand[i].get_suit(trump) != trump){
+            if(hand[i].get_suit(trump) != led_card.get_suit(trump) &&
+             hand[i].get_suit(trump) != trump){
                 play = hand[i];
                 playIndex = i;
             }
@@ -196,6 +202,7 @@ class Human : public Player{
     
     void add_card(const Card &c) override {
         hand.push_back(c);
+        std::sort(hand.begin(), hand.end());
     }
     
     bool make_trump(const Card &upcard, bool is_dealer,
@@ -223,13 +230,14 @@ class Human : public Player{
         sort(hand.begin(), hand.end());
         print_hand();
         cout << "Discard upcard: [-1]\n";
-        cout << "Human player " << name << ", please select a card to discard:\n";
+        cout << "Human player " << name << ", please select a card to discard:\n\n";
         int discard;
         cin >> discard;
         if(discard == -1) {
             return;
         } else {
             hand[discard] = upcard;
+            
         }
     }
 
