@@ -24,11 +24,9 @@ class Game {
   int points2 = 0;
 
  public:
-  Game(Player* p0, Player* p1, Player* p2, Player* p3, int points, ifstream& ifs, bool isShuffle){
-    players.push_back(p0);
-    players.push_back(p1);
-    players.push_back(p2);
-    players.push_back(p3);
+  Game(vector<Player*> squad, int points, 
+  ifstream& ifs, bool isShuffle){
+    players = squad;
     original = players;
     pointsNeeded = points;
     points1 = 0;
@@ -79,8 +77,10 @@ class Game {
       evenRound = true;
     }
     totalHands++;
-    cout << original[0]->get_name() << " and " << original[2]->get_name() << " have " << points1 << " points" << endl;
-    cout << original[1]->get_name() << " and " << original[3]->get_name() << " have " << points2 << " points" << endl << endl; 
+    cout << original[0]->get_name() << " and " << 
+    original[2]->get_name() << " have " << points1 << " points" << endl;
+    cout << original[1]->get_name() << " and " << 
+    original[3]->get_name() << " have " << points2 << " points" << endl << endl; 
   }
   if(points1 > points2) {
     return true;
@@ -128,12 +128,15 @@ int set_trump(){
       }
     }
   }
+  trump = trumpSuit;
+  cout << players[placement]->get_name() << " orders up " << trump << endl << endl;
 
   if(currentRound == 1) {
     players[0]->add_and_discard(upCard);
   }
-  trump = trumpSuit;
-  cout << players[placement]->get_name() << " orders up " << trump << endl << endl;
+  if(currentRound == 2 && placement == 0){
+    players[0]->add_and_discard(upCard);
+  }
   return placement;
 }
 
@@ -157,7 +160,8 @@ void play_trick(Suit trump, int& p1, int& lead, int orderIndex){
   lead = (lead + leadIndex) % 4;
   cout << players[lead]->get_name() << " takes the trick" << endl << endl;
   //Who ordered!!!!!
-  if(players[lead] == players[orderIndex] || players[(lead + 2) % 4] == players[orderIndex]) {
+  if(players[lead] == players[orderIndex] 
+  || players[(lead + 2) % 4] == players[orderIndex]) {
     p1++;
   }
 }
@@ -177,33 +181,39 @@ void awardPoint(int orderIndex, int handsWon) {
       indexTracker = i;
     }
   }
-  if(indexTracker > 2) {
+  if(indexTracker > 1) {
     indexTracker -= 2;
   }
   if(indexTracker == 0) {
     if(handsWon < 3) {
-      cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
+      cout << original[1]->get_name() << " and " << 
+      original[3]->get_name() << " win the hand" << endl;
       cout << "euchred!" << endl;
       points2 += 2;
     } else if(handsWon == 5) {
-      cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
+      cout << original[0]->get_name() << " and " << 
+      original[2]->get_name() << " win the hand" << endl;
       cout << "march!" << endl;
       points1 += 2;
     } else {
-      cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
+      cout << original[0]->get_name() << " and " << 
+      original[2]->get_name() << " win the hand" << endl;
       points1 += 1;
     }
   } else {
     if(handsWon < 3) {
-      cout << original[0]->get_name() << " and " << original[2]->get_name() << " win the hand" << endl;
+      cout << original[0]->get_name() << " and " << 
+      original[2]->get_name() << " win the hand" << endl;
       cout << "euchred!" << endl;
       points1 += 2;
     } else if(handsWon == 5) {
-      cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
+      cout << original[1]->get_name() << " and " << 
+      original[3]->get_name() << " win the hand" << endl;
       cout << "march!" << endl;
       points2 += 2;
     } else {
-      cout << original[1]->get_name() << " and " << original[3]->get_name() << " win the hand" << endl;
+      cout << original[1]->get_name() << " and " << 
+      original[3]->get_name() << " win the hand" << endl;
       points2 += 1;
     }
   }
@@ -211,28 +221,31 @@ void awardPoint(int orderIndex, int handsWon) {
 
 
 };
-
+void printOutcomes(bool outcome, vector <Player*> gang){
+  if (outcome){
+    cout << gang[0]->get_name() << " and " << gang[2]->get_name() << " win!" << endl;
+  }else{
+    cout << gang[1]->get_name() << " and " << gang[3]->get_name() << " win!" << endl;
+  }
+}
 int main(int argc, char **argv) {
    Player* p0 = Player_factory(argv[4], argv[5]);
    Player* p1 = Player_factory(argv[6], argv[7]);
    Player* p2 = Player_factory(argv[8], argv[9]);
    Player* p3 = Player_factory(argv[10], argv[11]);
+   std::vector<Player*> squad;
+   squad.push_back(p0);
+   squad.push_back(p1);
+   squad.push_back(p2);
+   squad.push_back(p3);
   bool shuffle;
   int points = stoi(argv[3]);
-  
-  if(argc != 12) {
+  if(argc != 12 || points < 1 || points > 100) {
     cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
      << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
      << "NAME4 TYPE4" << endl;
     return 1;
    }
-   
-   if(points < 1 || points > 100) {
-    cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
-     << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
-     << "NAME4 TYPE4" << endl;
-    return 1;
-  }
   if(strcmp(argv[2],"shuffle") == 0) {
     shuffle = true;
   } else if(  strcmp(argv[2],"noshuffle") == 0) {
@@ -243,9 +256,8 @@ int main(int argc, char **argv) {
      << "NAME4 TYPE4" << endl;
     return 1;
   }
-
   for(int i = 5; i < argc; i += 2) {
-    if(strcmp(argv[1],"Human") != 0 && strcmp(argv[i],"Simple") != 0) {
+    if(strcmp(argv[i],"Human") != 0 && strcmp(argv[i],"Simple") != 0) {
         cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
      << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
      << "NAME4 TYPE4" << endl;
@@ -254,23 +266,17 @@ int main(int argc, char **argv) {
   }
   string importedPack = argv[1];
    std::ifstream fin(importedPack);
-   
   if(!fin.is_open()){
     cout << "Error opening " << importedPack << endl;
     return 1;
   }
-
   for(int i = 0; i < 12; i++) {
     cout << argv[i] << " ";
   }
   cout << endl;
-  Game game(p0,p1,p2,p3,points,fin, shuffle);
+  Game game(squad,points,fin, shuffle);
   bool outcome = game.play(points);
-  if (outcome){
-    cout << endl << p0->get_name() << " and " << p2->get_name() << " win!" << endl;
-  }else{
-    cout << endl << p1->get_name() << " and " << p3->get_name() << " win!" << endl;
-  }
+  printOutcomes(outcome,squad);
 }
 
 
